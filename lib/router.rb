@@ -66,27 +66,30 @@ class Router
 
   def define_controller_helpers
     index_route = @routes.find { |route| route.action_name == :index }
-    define_index_helpers(index_route) if index_route
+    if index_route
+      define_path_helper(index_route, true)
+      define_url_helper(index_route, true)
+    end
 
     show_route = @routes.find { |route| route.action_name == :show }
     if show_route
-      ControllerBase.send(:define_method, methodify(index_route.controller, "path")) do |id|
-        index_route.pattern.inspect[/\/[[:alnum:]]+\/?/]
-      end
-      ControllerBase.send(:define_method, methodify(index_route.controller, "url")) do |id|
-        URI.parse(index_route.req.request_uri).host
-        + index_route.pattern.inspect[/\/[[:alnum:]]+\/?/]
-      end
+      define_path_helper(show_route, false)
+      define_url_helper(show_route, false)
     end
   end
 
-  def define_index_helpers(index_route)
-    ControllerBase.send(:define_method, methodify(index_route.controller, "path", true)) do
-      index_route.pattern.inspect[/\/[[:alnum:]]+\/?/]
+  def define_path_helper(route, plural)
+    ControllerBase.send(:define_method, methodify(route.controller, "path", plural)) do |obj|
+      index_route.pattern.inspect[/(\/[[:alnum:]]+)+/]
+        + route.action_name == :show ? "\\#{obj.try(:id) ? obj.id : obj}" : ""
     end
-    ControllerBase.send(:define_method, methodify(index_route.controller, "url", true)) do
-      URI.parse(index_route.req.request_uri).host
-      + index_route.pattern.inspect[/\/[[:alnum:]]+\/?/]
+  end
+
+  def define_url_helper(route, plural)
+    ControllerBase.send(:define_method, methodify(route.controller, "path", plural)) do |obj|
+      URI.parse(show_route.req.request_uri).host
+        + index_route.pattern.inspect[/(\/[[:alnum:]]+)+/]
+        + route.action_name == :show ? "\\#{obj.try(:id) ? obj.id : obj}" : ""
     end
   end
 
