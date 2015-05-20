@@ -1,16 +1,19 @@
 require_relative './session'
 require_relative './params'
 require_relative './flash'
+require_relative './route_helper'
 require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/inflector'
 require 'erb'
+require 'uri'
 require 'webrick'
 
 class ControllerBase
+  include RouteHelper
   attr_reader :req, :res
 
-  def initialize(req, res, route_params = {})
+  def initialize(req, res, route_params = {}, router = nil)
     @req = req
     @res = res
     @params = Params.new(req, route_params)
@@ -58,5 +61,22 @@ class ControllerBase
   def invoke_action(name)
     self.send(name)
     render(name) unless already_built_response?
+  end
+
+  def method_missing(m)
+    raise NoMethodError if m.length <= 4
+    case m[-4..-1]
+    when /url/
+      URI.parse(@req.request_uri).host + URL <== WHATEVER THIS IS
+    when /path/
+      klass = m.to_s.match(/(.+)\_path)[1]
+      if klass.pluralize == klass
+        klass.singularize.constantize.invoke_action(:index)
+        #it's already plural; show index(path)
+      else
+
+    else
+      raise NoMethodError
+    end
   end
 end
