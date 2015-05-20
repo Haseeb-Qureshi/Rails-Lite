@@ -94,7 +94,11 @@ class Router
   end
 
   def methodify(controller_class, suffix, plural = false)
-    class_name = controller_class.name.match(/(.+)Controller/)[1]
+    class_name = uncontrollerize(controller_class)
     (plural ? class_name.pluralize : class_name) + "_#{suffix}"
+  end
+
+  def uncontrollerize(controller_class)
+    controller_class.name.match(/(.+)Controller/)[1]
   end
 end
