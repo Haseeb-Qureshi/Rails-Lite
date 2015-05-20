@@ -31,7 +31,9 @@ end
 
 class Cats2Controller < Phase6::ControllerBase
   def index
-    render_content($cats.to_s, "text/text")
+    puts "i'm in the index"
+    p params
+  #   render_content($cats.to_s, "text/text")
   end
 end
 
