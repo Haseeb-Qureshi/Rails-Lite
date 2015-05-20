@@ -1,5 +1,6 @@
 require_relative './session'
 require_relative './params'
+require_relative './flash'
 require 'active_support'
 require 'active_support/core_ext'
 require 'active_support/inflector'
@@ -21,6 +22,10 @@ class ControllerBase
 
   def session
     @session ||= Session.new(req)
+  end
+
+  def flash
+    @flash ||= Flash.new(req)
   end
 
   # Set the response status code and header
