@@ -5,8 +5,9 @@ module Phase2
     attr_reader :req, :res
 
     # Setup the controller
-    def initialize(req, res)
+    def initialize(req, res, params = {})
       @req, @res = req, res
+      @params = params
     end
 
     # Helper method to alias @already_built_response
