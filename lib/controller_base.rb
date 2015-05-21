@@ -39,6 +39,7 @@ class ControllerBase
     res.status = 302
     @already_built_response = true
     session.store_session(res)
+    flash.store_flash(res)
   end
 
   # Populate the response with content.
@@ -50,6 +51,7 @@ class ControllerBase
     res.body = content
     @already_built_response = true
     session.store_session(res)
+    flash.store_flash(res)
   end
 
   def render(template_name)
@@ -61,22 +63,5 @@ class ControllerBase
   def invoke_action(name)
     self.send(name)
     render(name) unless already_built_response?
-  end
-
-  def method_missing(m)
-    raise NoMethodError if m.length <= 4
-    case m[-4..-1]
-    when /url/
-      URI.parse(@req.request_uri).host + URL <== WHATEVER THIS IS
-    when /path/
-      klass = m.to_s.match(/(.+)\_path)[1]
-      if klass.pluralize == klass
-        klass.singularize.constantize.invoke_action(:index)
-        #it's already plural; show index(path)
-      else
-
-    else
-      raise NoMethodError
-    end
   end
 end
